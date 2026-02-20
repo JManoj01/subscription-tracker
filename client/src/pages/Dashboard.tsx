@@ -1,144 +1,119 @@
+import { useSubscriptions, useCreateSubscription, useDeleteSubscription } from "@/hooks/use-subscriptions";
+import { format, differenceInDays } from "date-fns";
 import { useState } from "react";
-import { useSubscriptions } from "@/hooks/use-subscriptions";
-import { SubscriptionCard } from "@/components/SubscriptionCard";
-import { SubscriptionForm } from "@/components/SubscriptionForm";
-import { StatsOverview } from "@/components/StatsOverview";
-import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { Plus, Search, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
-  const { data: subscriptions, isLoading, error } = useSubscriptions();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const { data: subscriptions, isLoading } = useSubscriptions();
+  const createSub = useCreateSubscription();
+  const deleteSub = useDeleteSubscription();
 
-  const filteredSubscriptions = subscriptions?.filter(sub => 
-    sub.name.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  const [name, setName] = useState("");
+  const [cost, setCost] = useState("");
+  const [cycle, setCycle] = useState("monthly");
+  const [isTrial, setIsTrial] = useState(false);
+  const [trialEndDate, setTrialEndDate] = useState("");
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-secondary/30 p-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="h-12 w-48 bg-gray-200 rounded animate-pulse" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <Skeleton key={i} className="h-40 rounded-2xl" />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <Skeleton key={i} className="h-64 rounded-2xl" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <div>Loading...</div>;
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Error loading subscriptions. Please try again.
-      </div>
-    );
-  }
+  const totalMonthly = subscriptions?.reduce((acc, sub) => {
+    const amount = sub.cost / 100;
+    if (sub.cycle === "monthly") return acc + amount;
+    if (sub.cycle === "yearly") return acc + amount / 12;
+    if (sub.cycle === "weekly") return acc + amount * 4;
+    return acc;
+  }, 0) || 0;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createSub.mutate({
+      name,
+      cost: Math.round(parseFloat(cost) * 100),
+      cycle,
+      isTrial,
+      trialEndDate: trialEndDate ? new Date(trialEndDate) : null,
+      startDate: new Date(),
+      status: "active",
+    });
+    setName("");
+    setCost("");
+    setIsTrial(false);
+    setTrialEndDate("");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      {/* Header Pattern Background */}
-      <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-white to-transparent pointer-events-none" />
+    <div>
+      <h1>SUBSCRIPTION TRACKER</h1>
+      
+      <div>
+        <strong>TOTAL ESTIMATED MONTHLY BURDEN: ${totalMonthly.toFixed(2)}</strong>
+      </div>
 
-      <main className="relative max-w-6xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-          <div>
-            <h1 className="text-4xl md:text-5xl mb-2 text-primary font-display">
-              Forensics
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Track your recurring commitments.
-            </p>
+      <h2>CURRENT SUBSCRIPTIONS</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Cost</th>
+            <th>Cycle</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {subscriptions?.map((sub) => {
+            const daysLeft = sub.trialEndDate ? differenceInDays(new Date(sub.trialEndDate), new Date()) : null;
+            return (
+              <tr key={sub.id}>
+                <td>
+                  {sub.name}
+                  {sub.isTrial && (
+                    <div className={daysLeft !== null && daysLeft <= 3 ? "trial-warning" : ""}>
+                      [TRIAL: {daysLeft !== null ? (daysLeft < 0 ? "EXPIRED" : `${daysLeft} days left`) : "No date"}]
+                    </div>
+                  )}
+                </td>
+                <td>${(sub.cost / 100).toFixed(2)}</td>
+                <td>{sub.cycle}</td>
+                <td>{sub.status}</td>
+                <td>
+                  <button onClick={() => deleteSub.mutate(sub.id)}>Delete</button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <h2>ADD NEW</h2>
+      <form onSubmit={handleSubmit} style={{ border: "1px solid #000", padding: "10px", maxWidth: "400px" }}>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Service: </label>
+          <input value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Cost ($): </label>
+          <input type="number" step="0.01" value={cost} onChange={(e) => setCost(e.target.value)} required />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Cycle: </label>
+          <select value={cycle} onChange={(e) => setCycle(e.target.value)}>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <label>Free Trial? </label>
+          <input type="checkbox" checked={isTrial} onChange={(e) => setIsTrial(e.target.checked)} />
+        </div>
+        {isTrial && (
+          <div style={{ marginBottom: "10px" }}>
+            <label>End Date: </label>
+            <input type="date" value={trialEndDate} onChange={(e) => setTrialEndDate(e.target.value)} required />
           </div>
-
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" className="btn-primary gap-2">
-                <Plus className="w-5 h-5" />
-                Add Subscription
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New Subscription</DialogTitle>
-                <DialogDescription>
-                  Enter the details of the service you want to track.
-                </DialogDescription>
-              </DialogHeader>
-              <SubscriptionForm 
-                mode="create" 
-                onSuccess={() => setIsCreateOpen(false)} 
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Stats */}
-        {subscriptions && <StatsOverview subscriptions={subscriptions} />}
-
-        {/* Filters & Search */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search subscriptions..." 
-              className="pl-9 bg-white border-transparent shadow-sm hover:border-border/50 focus:border-primary transition-all rounded-xl"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <Button variant="outline" size="icon" className="rounded-xl bg-white border-transparent shadow-sm">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-          </Button>
-        </div>
-
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSubscriptions.map((sub) => (
-            <SubscriptionCard key={sub.id} subscription={sub} />
-          ))}
-
-          {filteredSubscriptions.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-border rounded-3xl bg-white/50">
-              <div className="h-16 w-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                <Plus className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-1">No subscriptions found</h3>
-              <p className="text-muted-foreground max-w-sm mx-auto">
-                {search ? "Try adjusting your search terms." : "Start tracking your expenses by adding your first subscription."}
-              </p>
-              {!search && (
-                <Button 
-                  variant="link" 
-                  onClick={() => setIsCreateOpen(true)}
-                  className="mt-4 text-primary font-semibold"
-                >
-                  Add one now
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
+        )}
+        <button type="submit">Track It</button>
+      </form>
     </div>
   );
 }

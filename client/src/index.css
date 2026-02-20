@@ -1,79 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Minimalist Palette - Clean, sophisticated, high contrast */
-  --font-sans: 'Inter', sans-serif;
-  --font-display: 'Playfair Display', serif;
-
-  --background: 210 20% 98%;
-  --foreground: 220 15% 15%;
-  
-  --card: 0 0% 100%;
-  --card-foreground: 220 15% 15%;
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 220 15% 15%;
-  
-  --primary: 220 15% 15%;
-  --primary-foreground: 210 20% 98%;
-  
-  --secondary: 210 20% 94%;
-  --secondary-foreground: 220 15% 15%;
-  
-  --muted: 210 20% 94%;
-  --muted-foreground: 220 10% 45%;
-  
-  --accent: 15 85% 65%; /* Soft Terracotta for highlights */
-  --accent-foreground: 0 0% 100%;
-  
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 220 10% 90%;
-  --input: 220 10% 90%;
-  --ring: 220 15% 15%;
-  
-  --radius: 0.75rem;
-}
-
 @layer base {
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/10;
-    font-family: var(--font-sans);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-    @apply font-bold tracking-tight text-primary;
-  }
-}
-
-@layer components {
-  .glass-panel {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/5;
+    background-color: #fff;
+    color: #000;
+    font-family: monospace;
+    padding: 20px;
+    line-height: 1.2;
   }
   
-  .input-clean {
-    @apply bg-transparent border-b-2 border-border px-0 py-2 focus:border-primary focus:outline-none transition-colors rounded-none placeholder:text-muted-foreground/50;
+  h1 { font-size: 1.5rem; font-weight: bold; border-bottom: 2px solid #000; margin-bottom: 20px; }
+  h2 { font-size: 1.2rem; font-weight: bold; margin-top: 20px; }
+  
+  a { color: blue; text-decoration: underline; }
+  
+  button {
+    background: #eee;
+    border: 1px solid #000;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-family: monospace;
+  }
+  
+  button:hover { background: #ddd; }
+  
+  input, select {
+    border: 1px solid #000;
+    padding: 2px;
+    font-family: monospace;
   }
 
-  .btn-primary {
-    @apply inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none;
-  }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #000; padding: 4px; text-align: left; }
+  th { background: #f0f0f0; }
+
+  .trial-warning { color: red; font-weight: bold; }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 93%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 93%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 0 0% 93%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --ring: 0 0% 0%;
+  --radius: 0;
 }
