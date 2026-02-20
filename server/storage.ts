@@ -1,38 +1,46 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  subscriptions,
+  type CreateSubscriptionRequest,
+  type UpdateSubscriptionRequest,
+  type SubscriptionResponse
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getSubscriptions(): Promise<SubscriptionResponse[]>;
+  getSubscription(id: number): Promise<SubscriptionResponse | undefined>;
+  createSubscription(subscription: CreateSubscriptionRequest): Promise<SubscriptionResponse>;
+  updateSubscription(id: number, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse>;
+  deleteSubscription(id: number): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getSubscriptions(): Promise<SubscriptionResponse[]> {
+    return await db.select().from(subscriptions);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getSubscription(id: number): Promise<SubscriptionResponse | undefined> {
+    const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.id, id));
+    return sub;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createSubscription(sub: CreateSubscriptionRequest): Promise<SubscriptionResponse> {
+    const [created] = await db.insert(subscriptions).values(sub).returning();
+    return created;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async updateSubscription(id: number, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse> {
+    const [updated] = await db.update(subscriptions)
+      .set(updates)
+      .where(eq(subscriptions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteSubscription(id: number): Promise<void> {
+    await db.delete(subscriptions).where(eq(subscriptions.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
