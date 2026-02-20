@@ -9,18 +9,31 @@ export const errorSchemas = {
   notFound: z.object({
     message: z.string(),
   }),
+  unauthorized: z.object({
+    message: z.string(),
+  }),
   internal: z.object({
     message: z.string(),
   }),
 };
 
 export const api = {
+  auth: {
+    me: {
+      method: 'GET' as const,
+      path: '/api/me' as const,
+      responses: {
+        200: z.any(), // User or null
+      },
+    },
+  },
   subscriptions: {
     list: {
       method: 'GET' as const,
       path: '/api/subscriptions' as const,
       responses: {
         200: z.array(z.custom<typeof subscriptions.$inferSelect>()),
+        401: errorSchemas.unauthorized,
       },
     },
     get: {
@@ -29,25 +42,28 @@ export const api = {
       responses: {
         200: z.custom<typeof subscriptions.$inferSelect>(),
         404: errorSchemas.notFound,
+        401: errorSchemas.unauthorized,
       },
     },
     create: {
       method: 'POST' as const,
       path: '/api/subscriptions' as const,
-      input: insertSubscriptionSchema,
+      input: insertSubscriptionSchema.omit({ userId: true }),
       responses: {
         201: z.custom<typeof subscriptions.$inferSelect>(),
         400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
       },
     },
     update: {
       method: 'PATCH' as const,
       path: '/api/subscriptions/:id' as const,
-      input: insertSubscriptionSchema.partial(),
+      input: insertSubscriptionSchema.omit({ userId: true }).partial(),
       responses: {
         200: z.custom<typeof subscriptions.$inferSelect>(),
         400: errorSchemas.validation,
         404: errorSchemas.notFound,
+        401: errorSchemas.unauthorized,
       },
     },
     delete: {
@@ -56,6 +72,15 @@ export const api = {
       responses: {
         204: z.void(),
         404: errorSchemas.notFound,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    export: {
+      method: 'GET' as const,
+      path: '/api/subscriptions/export' as const,
+      responses: {
+        200: z.string(), // CSV string
+        401: errorSchemas.unauthorized,
       },
     },
   },

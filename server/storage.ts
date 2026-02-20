@@ -5,41 +5,46 @@ import {
   type UpdateSubscriptionRequest,
   type SubscriptionResponse
 } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
-  getSubscriptions(): Promise<SubscriptionResponse[]>;
-  getSubscription(id: number): Promise<SubscriptionResponse | undefined>;
-  createSubscription(subscription: CreateSubscriptionRequest): Promise<SubscriptionResponse>;
-  updateSubscription(id: number, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse>;
-  deleteSubscription(id: number): Promise<void>;
+  getSubscriptions(userId: string): Promise<SubscriptionResponse[]>;
+  getSubscription(id: number, userId: string): Promise<SubscriptionResponse | undefined>;
+  createSubscription(userId: string, subscription: CreateSubscriptionRequest): Promise<SubscriptionResponse>;
+  updateSubscription(id: number, userId: string, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse>;
+  deleteSubscription(id: number, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getSubscriptions(): Promise<SubscriptionResponse[]> {
-    return await db.select().from(subscriptions);
+  async getSubscriptions(userId: string): Promise<SubscriptionResponse[]> {
+    return await db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
   }
 
-  async getSubscription(id: number): Promise<SubscriptionResponse | undefined> {
-    const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.id, id));
+  async getSubscription(id: number, userId: string): Promise<SubscriptionResponse | undefined> {
+    const [sub] = await db.select().from(subscriptions).where(
+      and(eq(subscriptions.id, id), eq(subscriptions.userId, userId))
+    );
     return sub;
   }
 
-  async createSubscription(sub: CreateSubscriptionRequest): Promise<SubscriptionResponse> {
-    const [created] = await db.insert(subscriptions).values(sub).returning();
+  async createSubscription(userId: string, sub: CreateSubscriptionRequest): Promise<SubscriptionResponse> {
+    const [created] = await db.insert(subscriptions).values({ ...sub, userId }).returning();
     return created;
   }
 
-  async updateSubscription(id: number, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse> {
+  async updateSubscription(id: number, userId: string, updates: UpdateSubscriptionRequest): Promise<SubscriptionResponse> {
     const [updated] = await db.update(subscriptions)
       .set(updates)
-      .where(eq(subscriptions.id, id))
+      .where(and(eq(subscriptions.id, id), eq(subscriptions.userId, userId)))
       .returning();
+    if (!updated) throw new Error("Subscription not found or unauthorized");
     return updated;
   }
 
-  async deleteSubscription(id: number): Promise<void> {
-    await db.delete(subscriptions).where(eq(subscriptions.id, id));
+  async deleteSubscription(id: number, userId: string): Promise<void> {
+    await db.delete(subscriptions).where(
+      and(eq(subscriptions.id, id), eq(subscriptions.userId, userId))
+    );
   }
 }
 
