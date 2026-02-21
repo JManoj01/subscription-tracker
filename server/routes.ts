@@ -58,58 +58,5 @@ export async function registerRoutes(
     res.status(204).end();
   });
 
-  // Seed data on startup
-  seedDatabase().catch(console.error);
-
   return httpServer;
-}
-
-async function seedDatabase() {
-  const existing = await storage.getSubscriptions();
-  if (existing.length === 0) {
-    const now = new Date();
-    const threeDaysFromNow = new Date();
-    threeDaysFromNow.setDate(now.getDate() + 3);
-
-    const twoWeeksFromNow = new Date();
-    twoWeeksFromNow.setDate(now.getDate() + 14);
-
-    await storage.createSubscription({
-      name: "Netflix",
-      cost: 1549, // $15.49
-      cycle: "monthly",
-      startDate: new Date("2023-01-15"),
-      isTrial: false,
-      status: "active"
-    });
-
-    await storage.createSubscription({
-      name: "Adobe Creative Cloud",
-      cost: 5499, // $54.99
-      cycle: "monthly",
-      startDate: new Date(),
-      isTrial: true,
-      trialEndDate: threeDaysFromNow,
-      status: "active"
-    });
-
-    await storage.createSubscription({
-      name: "Spotify",
-      cost: 1099, // $10.99
-      cycle: "monthly",
-      startDate: new Date("2022-06-01"),
-      isTrial: false,
-      status: "active"
-    });
-
-    await storage.createSubscription({
-      name: "Amazon Prime",
-      cost: 13900, // $139.00
-      cycle: "yearly",
-      startDate: new Date(),
-      isTrial: true,
-      trialEndDate: twoWeeksFromNow,
-      status: "active"
-    });
-  }
 }

@@ -6,7 +6,7 @@ export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   cost: integer("cost").notNull(), // stored in cents
-  cycle: text("cycle").notNull(), // 'monthly', 'yearly', 'weekly'
+  cycle: text("cycle").notNull(), // 'monthly', 'yearly', 'weekly', 'quarterly', 'semiannual'
   startDate: timestamp("start_date").defaultNow().notNull(),
   isTrial: boolean("is_trial").default(false).notNull(),
   trialEndDate: timestamp("trial_end_date"),
