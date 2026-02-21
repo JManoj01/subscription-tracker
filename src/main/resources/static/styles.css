@@ -1,0 +1,131 @@
+body {
+  background-color: #fff;
+  color: #000;
+  font-family: monospace;
+  padding: 20px;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-bottom: 2px solid #000;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+
+button {
+  background: #eee;
+  border: 1px solid #000;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-family: monospace;
+}
+
+button:hover {
+  background: #ddd;
+}
+
+input,
+select {
+  border: 1px solid #000;
+  padding: 2px;
+  font-family: monospace;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border: 1px solid #000;
+  padding: 4px;
+  text-align: left;
+}
+
+th {
+  background: #f0f0f0;
+}
+
+.trial-warning {
+  color: red;
+  font-weight: bold;
+}
+
+.trial-alert {
+  border: 2px solid red;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #fff0f0;
+}
+
+.trial-alert-title {
+  color: red;
+}
+
+.total-row {
+  margin-bottom: 20px;
+}
+
+.add-form {
+  border: 1px solid #000;
+  padding: 15px;
+  max-width: 450px;
+}
+
+.form-row {
+  margin-bottom: 10px;
+}
+
+.form-row label {
+  display: block;
+}
+
+.form-row input,
+.form-row select {
+  width: 100%;
+}
+
+.trial-block {
+  margin-bottom: 10px;
+  border: 1px dashed #ccc;
+  padding: 5px;
+}
+
+.trial-block #trial-date-wrap {
+  margin-top: 10px;
+}
+
+.trial-block #trial-date-wrap label {
+  display: block;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.note {
+  margin-top: 40px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.row-expired {
+  background-color: #f0f0f0;
+  color: #666;
+}

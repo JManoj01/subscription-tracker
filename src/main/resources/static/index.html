@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <h1>SUBSCRIPTION TRACKER</h1>
+
+    <div id="trial-alert" class="trial-alert" style="display: none;">
+      <strong class="trial-alert-title">!!! TRIAL EXPIRATION ALERT !!!</strong>
+      <ul id="trial-alert-list"></ul>
+    </div>
+
+    <div class="total-row">
+      <strong id="monthly-total-label">ESTIMATED TOTAL MONTHLY COST: $0.00</strong>
+    </div>
+
+    <h2>YOUR SUBSCRIPTIONS (<span id="sub-count">0</span>)</h2>
+    <div id="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Cost</th>
+            <th>Cycle</th>
+            <th>Trial Info</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sub-tbody">
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-message" style="display: none;">No subscriptions tracked yet. Add one below!</p>
+
+    <h2>ADD NEW SUBSCRIPTION</h2>
+    <form id="add-form" class="add-form">
+      <div class="form-row">
+        <label>Service Name:</label>
+        <input id="input-name" type="text" placeholder="e.g. Netflix, Gym, etc." required />
+      </div>
+      <div class="form-row">
+        <label>Cost ($):</label>
+        <input id="input-cost" type="number" step="0.01" min="0" placeholder="0.00" required />
+      </div>
+      <div class="form-row">
+        <label>Billing Cycle:</label>
+        <select id="input-cycle">
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="semiannual">Biannual (6 mo)</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
+      <div class="trial-block">
+        <label>
+          <input type="checkbox" id="input-trial" />
+          This is a free trial
+        </label>
+        <div id="trial-date-wrap" style="display: none;">
+          <label>Trial End Date:</label>
+          <input id="input-trial-end" type="date" />
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">+ TRACK SUBSCRIPTION</button>
+    </form>
+
+    <div class="note">
+      <p><em>Note: Monthly cost is estimated based on your billing cycle.</em></p>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
